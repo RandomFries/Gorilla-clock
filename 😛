@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gorilla Clock</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ffddc1, #f7a8b7);
+            color: #fff;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        .clock {
+            font-size: 5rem;
+            font-weight: bold;
+            margin-top: 20px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gorilla Tag In-Game Clock</h1>
+    <div class="clock" id="clock">Loading...</div>
+
+    <script>
+        // Real-time to in-game time conversion
+        const realSecondsPerGameDay = 24 * 60 * 6; // Assume 1 real minute = 6 in-game minutes (adjust if needed)
+        const segmentHours = [
+            { name: "Dawn", duration: 4 },
+            { name: "Noon", duration: 3 },
+            { name: "Dusk", duration: 3 },
+            { name: "Night", duration: 8 },
+            { name: "Light", duration: 6 }
+        ];
+
+        function getGameTime() {
+            let realSeconds = Math.floor(Date.now() / 1000);
+            let gameSeconds = (realSeconds * 24) / realSecondsPerGameDay;
+            let gameHours = Math.floor(gameSeconds) % 24;
+            let gameMinutes = Math.floor((gameSeconds % 1) * 60);
+
+            // Determine which segment we're in
+            let accumulatedTime = 0;
+            let segmentName = "Unknown";
+            for (let segment of segmentHours) {
+                accumulatedTime += segment.duration;
+                if (gameHours < accumulatedTime) {
+                    segmentName = segment.name;
+                    break;
+                }
+            }
+
+            return { segmentName, gameHours, gameMinutes };
+        }
+
+        function updateClock() {
+            let { segmentName, gameHours, gameMinutes } = getGameTime();
+            document.getElementById("clock").textContent =
+                `${segmentName}: ${gameHours.toString().padStart(2, '0')}:${gameMinutes.toString().padStart(2, '0')}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock(); // Call immediately to avoid delay
+    </script>
+</body>
+</html>
